@@ -5,28 +5,30 @@
 
 #pragma once
 
+#include "../db/abstract_binder.h"
+
 #include <string>
 #include <vector>
 
 #include <mariadb/mysql.h>
 
 
-class MariaDBBinder
+class MariaDBBinder : public db::AbstractBinder
 {
 public:
-	MariaDBBinder(MYSQL *mysql_ptr, std::size_t size);
+	MariaDBBinder(MYSQL* mysql_ptr, std::size_t size);
 	~MariaDBBinder();
 
-	void bind(std::size_t pos);
-	void bind(std::size_t pos, const std::string & str);
+	void bind(std::size_t pos) override;
+	void bind(std::size_t pos, const std::string& str) override;
 
-	void binder(std::size_t &pos, enum_field_types type, const void * buffer, int length);
+	void binder(std::size_t& pos, int type, const void* buffer, int length) override;
 
-	void clear();
+	void clear() override;
 
 private:
-	MYSQL *mysql_ptr;
-  MYSQL_BIND *mysql_binds = NULL;
+	MYSQL* mysql_ptr;
+	MYSQL_BIND* mysql_binds = NULL;
 
 	std::size_t size;
 

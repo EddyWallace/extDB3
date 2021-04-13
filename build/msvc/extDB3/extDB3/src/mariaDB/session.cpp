@@ -20,5 +20,5 @@ MariaDBSession::~MariaDBSession(void)
 void MariaDBSession::resetSession()
 {
 	data->statements.clear();
-	mysql_reset_connection(data->connector.mysql_ptr);
+	mysql_reset_connection((dynamic_cast<MariaDBConnector*>(data->connector))->mysql_ptr);
 }

@@ -7,7 +7,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "ext.h"
+#include "extension.h"
 
 #ifdef TEST_APP
 	int main(int nNumberofArgs, char* pszArgs[])
@@ -16,8 +16,8 @@
 		char result[81] = {0};
 		std::string input_str;
 
-		Ext *extension;
-		extension = new Ext(std::string(""));
+		Extension *extension;
+		extension = new Extension(std::string(""));
 
 		bool test = false;
 		int test_counter = 0;

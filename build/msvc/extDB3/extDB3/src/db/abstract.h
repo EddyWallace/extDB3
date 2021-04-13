@@ -5,9 +5,6 @@
 
 #pragma once
 
-#include <string>
-#include <memory>
-
  //Lazy Method to prevent circular dependency issue between SQL_CUSTOM & MariaDBStatement Classes
 namespace db {
 	struct SQL_OPTION

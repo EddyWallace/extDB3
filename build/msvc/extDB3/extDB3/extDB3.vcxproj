@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -31,6 +39,18 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -46,11 +66,18 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>D:\Développement\C++ libs\tbb\lib\intel64\vc14;D:\Développement\C++ libs\mariadb-connector-c-3.1.10\lib;D:\Développement\C++ libs\boost_1_74_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)_debug_x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>C:\Users\tcroi\source\c++\libs\mariadb-connector-c-3.1.10\lib;C:\Users\tcroi\source\c++\libs\tbb_arma\build\vs2013\x64\Release-MT;C:\Users\tcroi\source\c++\libs\boost_1_74_0\lib64-msvc-14.2;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)_x64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>$(ProjectName)_debug</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -60,12 +87,13 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\Développement\C++ libs\boost_1_74_0;D:\Développement\C++ libs\tbb\include;D:\Développement\C++ libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)libs;$(ProjectDir)libs\boost_1_74_0;$(ProjectDir)libs\tbb_arma\include;$(ProjectDir)libs\mariadb-connector-c-3.1.10;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>tbbmalloc.lib;crypt32.lib;secur32.lib;mariadbclient.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mariadbclient.lib;secur32.lib;crypt32.lib;shlwapi.lib;tbbmalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)libs\boost_1_74_0\lib64-msvc-14.2;$(ProjectDir)libs\tbb_arma\build\vs2013\x64\Release-MT;$(ProjectDir)libs\mariadb-connector-c-3.1.10\lib;$(ProjectDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -78,7 +106,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\tcroi\source\c++\libs\tbb_arma\include;C:\Users\tcroi\source\c++\libs\mariadb-connector-c-3.1.10;C:\Users\tcroi\source\c++\libs;C:\Users\tcroi\source\c++\libs\boost_1_74_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)libs;$(ProjectDir)libs\boost_1_74_0;$(ProjectDir)libs\tbb_arma\include;$(ProjectDir)libs\mariadb-connector-c-3.1.10;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -90,11 +118,53 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>mariadbclient.lib;secur32.lib;crypt32.lib;shlwapi.lib;tbbmalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)extDB3_x64.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(ProjectDir)libs\boost_1_74_0\lib64-msvc-14.2;$(ProjectDir)libs\tbb_arma\build\vs2013\x64\Release-MT;$(ProjectDir)libs\mariadb-connector-c-3.1.10\lib;$(ProjectDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Link>
+      <AdditionalDependencies>mariadbclient.lib;secur32.lib;crypt32.lib;shlwapi.lib;tbbmalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)libs\boost_1_74_0\lib64-msvc-14.2;$(ProjectDir)libs\tbb_arma\build\vs2013\x64\Release-MT;$(ProjectDir)libs\mariadb-connector-c-3.1.10\lib;$(ProjectDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)libs;$(ProjectDir)libs\boost_1_74_0;$(ProjectDir)libs\tbb_arma\include;$(ProjectDir)libs\mariadb-connector-c-3.1.10;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;EXTDB3_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Link>
+      <AdditionalDependencies>mariadbclient.lib;secur32.lib;crypt32.lib;shlwapi.lib;tbbmalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)extDB3.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(ProjectDir)libs\boost_1_74_0\lib64-msvc-14.2;$(ProjectDir)libs\tbb_arma\build\vs2013\x64\Release-MT;$(ProjectDir)libs\mariadb-connector-c-3.1.10\lib;$(ProjectDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)libs;$(ProjectDir)libs\boost_1_74_0;$(ProjectDir)libs\tbb_arma\include;$(ProjectDir)libs\mariadb-connector-c-3.1.10;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <Optimization>Full</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NOMINMAX;NDEBUG;_WIN32_WINNT=0x0600;TBB_MALLOC;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";extDB3_EXPORTS;BOOST_BIND_GLOBAL_PLACEHOLDERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\abstract_ext.h" />
-    <ClInclude Include="src\ext.h" />
+    <ClInclude Include="src\db\abstract_binder.h" />
+    <ClInclude Include="src\db\abstract_connector.h" />
+    <ClInclude Include="src\db\abstract_pool.h" />
+    <ClInclude Include="src\db\abstract_query.h" />
+    <ClInclude Include="src\db\abstract_session.h" />
+    <ClInclude Include="src\db\abstract_statement.h" />
+    <ClInclude Include="src\extension.h" />
     <ClInclude Include="src\mariaDB\abstract.h" />
     <ClInclude Include="src\mariaDB\binder.h" />
     <ClInclude Include="src\mariaDB\connector.h" />
@@ -112,7 +182,7 @@
     <ClInclude Include="src\sqfparser.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ext.cpp" />
+    <ClCompile Include="src\extension.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mariaDB\binder.cpp" />
     <ClCompile Include="src\mariaDB\connector.cpp" />

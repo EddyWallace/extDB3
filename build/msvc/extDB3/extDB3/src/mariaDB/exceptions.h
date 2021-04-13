@@ -8,6 +8,7 @@
 #include <iostream>
 #include <exception>
 #include <string>
+#include <mariadb/mysql.h>
 
 
 class extDB3Exception : public std::exception

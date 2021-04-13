@@ -10,7 +10,7 @@
 
 #include "spdlog/spdlog.h"
 
-#include "mariaDB/pool.h"
+#include "db/abstract_pool.h"
 
 
 #define EXTDB_VERSION "1.033"
@@ -26,7 +26,7 @@ public:
 		std::string message;
 	};
 
-	std::unordered_map<std::string, MariaDBPool> mariadb_databases;
+	std::unordered_map<std::string, db::AbstractPool> extension_databases;
 
 	// extInfo
 	struct extInfo
@@ -45,10 +45,10 @@ public:
 	extInfo ext_info;
 
 
-	#ifdef DEBUG_TESTING
-		std::shared_ptr<spdlog::logger> console;
-	#elif TEST_APP
-		std::shared_ptr<spdlog::logger> console;
-	#endif
+#ifdef DEBUG_TESTING
+	std::shared_ptr<spdlog::logger> console;
+#elif TEST_APP
+	std::shared_ptr<spdlog::logger> console;
+#endif
 	std::shared_ptr<spdlog::logger> logger;
 };

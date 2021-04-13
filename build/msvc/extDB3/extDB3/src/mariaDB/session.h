@@ -6,17 +6,16 @@
 #pragma once
 
 #include "pool.h"
+#include "../db/abstract_session.h"
 
-
-class MariaDBSession
+class MariaDBSession : db::AbstractSession
 {
 public:
-	MariaDBSession(MariaDBPool *database_pool);
+	MariaDBSession(MariaDBPool* database_pool);
 	~MariaDBSession();
 
-	std::unique_ptr<MariaDBPool::mariadb_session_struct> data;
+	void resetSession() override;
 
-	void resetSession();
 private:
-	MariaDBPool *database_pool_ptr;
+	MariaDBPool* database_pool_ptr;
 };

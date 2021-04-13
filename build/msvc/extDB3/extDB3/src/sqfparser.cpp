@@ -2,12 +2,12 @@
  * extDB3
  * © 2016 Declan Ireland <https://bitbucket.org/torndeco/extdb3>
  */
- 
- 
- #include "sqfparser.h"
 
 
-inline bool sqf_extract_string(std::string &input_str, std::string::size_type &pos, char quotation, std::vector<std::string> &output_vec)
+#include "sqfparser.h"
+
+
+inline bool sqf_extract_string(std::string& input_str, std::string::size_type& pos, char quotation, std::vector<std::string>& output_vec)
 {
 	pos++;
 	if (pos > input_str.size())
@@ -16,18 +16,20 @@ inline bool sqf_extract_string(std::string &input_str, std::string::size_type &p
 	}
 
 	std::string output_str;
-	for(;pos < input_str.size(); ++pos)
+	for (; pos < input_str.size(); ++pos)
 	{
 		if (input_str[pos] == quotation)
 		{
-			if ((input_str[pos+1]) == quotation)
+			if ((input_str[pos + 1]) == quotation)
 			{
 				output_str += quotation;
 				pos++;
-			}	else {
+			}
+			else {
 				break;
 			}
-		} else {
+		}
+		else {
 			output_str += input_str[pos];
 		}
 	}
@@ -36,7 +38,7 @@ inline bool sqf_extract_string(std::string &input_str, std::string::size_type &p
 }
 
 
-inline bool sqf_skip_string(std::string &input_str, std::string::size_type &pos, char quotation)
+inline bool sqf_skip_string(std::string& input_str, std::string::size_type& pos, char quotation)
 {
 	pos++;
 	if (pos > input_str.size())
@@ -44,14 +46,15 @@ inline bool sqf_skip_string(std::string &input_str, std::string::size_type &pos,
 		return false;
 	}
 
-	for(;pos < input_str.size(); ++pos)
+	for (; pos < input_str.size(); ++pos)
 	{
 		if (input_str[pos] == quotation)
 		{
-			if ((input_str[pos+1]) == quotation)
+			if ((input_str[pos + 1]) == quotation)
 			{
 				pos++;
-			}	else {
+			}
+			else {
 				break;
 			}
 		}
@@ -60,7 +63,7 @@ inline bool sqf_skip_string(std::string &input_str, std::string::size_type &pos,
 }
 
 
-inline bool sqf_extract_number(std::string &input_str, std::string::size_type &pos, std::vector<std::string> &output_vec)
+inline bool sqf_extract_number(std::string& input_str, std::string::size_type& pos, std::vector<std::string>& output_vec)
 {
 	bool loop = true;
 
@@ -69,25 +72,25 @@ inline bool sqf_extract_number(std::string &input_str, std::string::size_type &p
 	{
 		switch (input_str[pos])
 		{
-			case 'e':
-			case '+':
-			case '-':
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-			case '.':
-				temp_str += input_str[pos];
-				break;
-			default:
-				--pos;
-				loop = false;
+		case 'e':
+		case '+':
+		case '-':
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case '.':
+			temp_str += input_str[pos];
+			break;
+		default:
+			--pos;
+			loop = false;
 		}
 		if (!loop)
 		{
@@ -105,7 +108,7 @@ inline bool sqf_extract_number(std::string &input_str, std::string::size_type &p
 }
 
 
-inline bool sqf_skip_number(std::string &input_str, std::string::size_type &pos)
+inline bool sqf_skip_number(std::string& input_str, std::string::size_type& pos)
 {
 	bool loop = true;
 
@@ -113,24 +116,24 @@ inline bool sqf_skip_number(std::string &input_str, std::string::size_type &pos)
 	{
 		switch (input_str[pos])
 		{
-			case 'e':
-			case '+':
-			case '-':
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-			case '.':
-				break;
-			default:
-				--pos;
-				loop = false;
+		case 'e':
+		case '+':
+		case '-':
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case '.':
+			break;
+		default:
+			--pos;
+			loop = false;
 		}
 		if (!loop)
 		{
@@ -147,7 +150,7 @@ inline bool sqf_skip_number(std::string &input_str, std::string::size_type &pos)
 }
 
 
-inline bool sqf_extract_special(std::string &input_str, std::string::size_type &pos, std::vector<std::string> &output_vec)
+inline bool sqf_extract_special(std::string& input_str, std::string::size_type& pos, std::vector<std::string>& output_vec)
 {
 	pos++;
 	bool status = false;
@@ -160,7 +163,8 @@ inline bool sqf_extract_special(std::string &input_str, std::string::size_type &
 		{
 			status = true;
 			break;
-		} else {
+		}
+		else {
 			output_str += input_str[pos];
 		}
 	}
@@ -178,7 +182,7 @@ inline bool sqf_extract_special(std::string &input_str, std::string::size_type &
 }
 
 
-inline bool sqf_skip_special(std::string &input_str, std::string::size_type &pos)
+inline bool sqf_skip_special(std::string& input_str, std::string::size_type& pos)
 {
 	pos++;
 	bool status = false;
@@ -195,7 +199,7 @@ inline bool sqf_skip_special(std::string &input_str, std::string::size_type &pos
 }
 
 
-inline bool sqf_skip_array(std::string &input_str, std::string::size_type &pos)
+inline bool sqf_skip_array(std::string& input_str, std::string::size_type& pos)
 {
 	bool loop = true;
 	bool status = true;
@@ -204,40 +208,40 @@ inline bool sqf_skip_array(std::string &input_str, std::string::size_type &pos)
 	{
 		switch (input_str[pos])
 		{
-			case '<':
-				status = sqf_skip_special(input_str, pos);
-				break;
-			case '"':
-				status = sqf_skip_string(input_str, pos, '\"');
-				break;
-			case '\'':
-				status = sqf_skip_string(input_str, pos, '\'');
-				break;
-			case ',':  // Ignore
-			case ' ':  // Ignore
-				break;
-			case ']':
-				loop = false;
-				break;
-			case '[':
-				sqf_skip_array(input_str, pos);
-				break;
-			case '-':
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-			case '.':
-				status =  sqf_skip_number(input_str, pos);
-				break;
-			default:
-				status = false;
+		case '<':
+			status = sqf_skip_special(input_str, pos);
+			break;
+		case '"':
+			status = sqf_skip_string(input_str, pos, '\"');
+			break;
+		case '\'':
+			status = sqf_skip_string(input_str, pos, '\'');
+			break;
+		case ',':  // Ignore
+		case ' ':  // Ignore
+			break;
+		case ']':
+			loop = false;
+			break;
+		case '[':
+			sqf_skip_array(input_str, pos);
+			break;
+		case '-':
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case '.':
+			status = sqf_skip_number(input_str, pos);
+			break;
+		default:
+			status = false;
 		}
 		if ((!status) || (!loop))
 		{
@@ -254,7 +258,7 @@ inline bool sqf_skip_array(std::string &input_str, std::string::size_type &pos)
 }
 
 
-inline bool sqf_extract_array(std::string &input_str, std::vector<std::string> &output_vec)
+inline bool sqf_extract_array(std::string& input_str, std::vector<std::string>& output_vec)
 {
 	std::string::size_type pos = 1;
 	bool loop = true;
@@ -316,7 +320,7 @@ inline bool sqf_extract_array(std::string &input_str, std::vector<std::string> &
 
 namespace sqf
 {
-	bool parser(std::string &input_str, std::vector<std::string> &output_vec)
+	bool parser(std::string& input_str, std::vector<std::string>& output_vec)
 	{
 		bool status = false;
 		if (!(input_str.empty()))

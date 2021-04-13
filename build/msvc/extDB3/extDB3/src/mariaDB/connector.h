@@ -9,17 +9,18 @@
 
 #include <mariadb/mysql.h>
 
+#include "../db/abstract_connector.h"
 
-class MariaDBConnector
+class MariaDBConnector : public db::AbstractConnector
 {
 public:
 	MariaDBConnector();
 	~MariaDBConnector();
 
-	void init(std::string &host, unsigned int &port, std::string &user, std::string &password, std::string &db);
-	void connect();
-	unsigned long long getInsertId();
-	int ping();
+	void init(std::string &host, unsigned int &port, std::string &user, std::string &password, std::string &db) override;
+	void connect() override;
+	unsigned long long getInsertId() override;
+	int ping() override;
 
 	MYSQL *mysql_ptr;
 

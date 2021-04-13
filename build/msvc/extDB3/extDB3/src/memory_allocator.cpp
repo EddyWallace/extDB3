@@ -23,7 +23,7 @@ void* operator new (size_t size)
 	return ptr;
 }
 
-void* operator new[] (size_t size)
+void* operator new[](size_t size)
 {
 	void* ptr = scalable_malloc(size);
 	if (ptr == NULL) {
@@ -40,7 +40,7 @@ void* operator new (size_t size, const std::nothrow_t&)
 	return NULL;
 }
 
-void* operator new[] (size_t size, const std::nothrow_t&)
+void* operator new[](size_t size, const std::nothrow_t&)
 {
 	return operator new (size, std::nothrow);
 }
@@ -52,7 +52,7 @@ void operator delete (void* ptr)
 	}
 }
 
-void operator delete[] (void* ptr)
+void operator delete[](void* ptr)
 {
 	operator delete (ptr);
 }
@@ -64,7 +64,7 @@ void operator delete (void* ptr, const std::nothrow_t&)
 	}
 }
 
-void operator delete[] (void* ptr, const std::nothrow_t&)
+void operator delete[](void* ptr, const std::nothrow_t&)
 {
 	operator delete(ptr, std::nothrow);
 }

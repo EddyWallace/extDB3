@@ -22,11 +22,11 @@
 #include "protocols/abstract_protocol.h"
 
 
-class Ext: public AbstractExt
+class Extension : public AbstractExt
 {
 public:
-	Ext(std::string shared_libary_path);
-	~Ext();
+	Extension(std::string shared_libary_path);
+	~Extension();
 	void reset();
 	void stop();
 	void idleCleanup(const boost::system::error_code& ec);
@@ -34,8 +34,8 @@ public:
 
 	struct protocol_struct
 	{
-		std::string													name;
-		std::unique_ptr<AbstractProtocol>		protocol;
+		std::string name;
+		std::unique_ptr<AbstractProtocol> protocol;
 	};
 
 
@@ -100,5 +100,4 @@ private:
 	void getUTCTime(std::string &input_str, std::string &result);
 	
 	void getDateAdd(std::string &token, std::string &token2, std::string &result);
-
 };

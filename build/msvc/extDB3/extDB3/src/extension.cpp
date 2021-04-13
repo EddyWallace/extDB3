@@ -3,7 +3,7 @@
  * © 2016 Declan Ireland <https://bitbucket.org/torndeco/extdb3>
  */
 
-#include "ext.h"
+#include "extension.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -36,7 +36,7 @@
 
 #pragma warning(disable : 4996)
 
-Ext::Ext(std::string shared_library_path)
+Extension::Extension(std::string shared_library_path)
 {
 	uptime_start = std::chrono::steady_clock::now();
 	std::setlocale(LC_ALL, "");
@@ -292,7 +292,7 @@ Ext::Ext(std::string shared_library_path)
 }
 
 
-Ext::~Ext(void)
+Extension::~Extension(void)
 {
 	#ifdef DEBUG_TESTING
 		console->info("extDB3: Closing ...");
@@ -304,14 +304,14 @@ Ext::~Ext(void)
 }
 
 
-void Ext::reset()
+void Extension::reset()
 {
 	stop();
 	std::lock_guard<std::mutex> lock(mutex_vec_protocols);
 	{
 		vec_protocols.clear();
 	}
-	mariadb_databases.clear();
+	extension_databases.clear();
 
 	// Setup ASIO Worker Pool
 	io_service.reset();
@@ -322,11 +322,11 @@ void Ext::reset()
 	}
 	mariadb_idle_cleanup_timer.reset(new boost::asio::deadline_timer(io_service));
 	mariadb_idle_cleanup_timer->expires_at(mariadb_idle_cleanup_timer->expires_at() + boost::posix_time::seconds(600));
-	mariadb_idle_cleanup_timer->async_wait(boost::bind(&Ext::idleCleanup, this, _1));
+	mariadb_idle_cleanup_timer->async_wait(boost::bind(&Extension::idleCleanup, this, _1));
 }
 
 
-void Ext::stop()
+void Extension::stop()
 {
 	std::lock_guard<std::mutex> lock(mutex_mariadb_idle_cleanup_timer);
 	{
@@ -342,24 +342,24 @@ void Ext::stop()
 }
 
 
-void Ext::idleCleanup(const boost::system::error_code& ec)
+void Extension::idleCleanup(const boost::system::error_code& ec)
 {
 	if (!ec)
 	{
-		for(auto &dbpool : mariadb_databases)
+		for(auto &dbpool : extension_databases)
 		{
 				dbpool.second.idleCleanup();
 		}
 		std::lock_guard<std::mutex> lock(mutex_mariadb_idle_cleanup_timer);
 		{
 			mariadb_idle_cleanup_timer->expires_at(mariadb_idle_cleanup_timer->expires_at() + boost::posix_time::seconds(300));
-			mariadb_idle_cleanup_timer->async_wait(boost::bind(&Ext::idleCleanup, this, _1));
+			mariadb_idle_cleanup_timer->async_wait(boost::bind(&Extension::idleCleanup, this, _1));
 		}
 	}
 }
 
 
-void Ext::search(boost::filesystem::path &config_path, bool &conf_found, bool &conf_randomized)
+void Extension::search(boost::filesystem::path &config_path, bool &conf_found, bool &conf_randomized)
 {
 	std::regex expression("extdb3-conf.*ini");
 	for (boost::filesystem::directory_iterator it(config_path); it != boost::filesystem::directory_iterator(); ++it)
@@ -379,10 +379,10 @@ void Ext::search(boost::filesystem::path &config_path, bool &conf_found, bool &c
 }
 
 
-void Ext::connectDatabase(char *output, const std::string &database_conf, const std::string &database_id)
+void Extension::connectDatabase(char *output, const std::string &database_conf, const std::string &database_id)
 // Connection to Database, database_id used when connecting to multiple different database.
 {
-	if (mariadb_databases.count(database_id) > 0)
+	if (extension_databases.count(database_id) > 0)
 	{
 		#ifdef DEBUG_TESTING
 			console->warn("extDB3: Already Connected to Database");
@@ -398,21 +398,21 @@ void Ext::connectDatabase(char *output, const std::string &database_conf, const 
 			std::string password = ptree.get<std::string>(database_conf + ".Password");
 			std::string database = ptree.get<std::string>(database_conf + ".Database");
 
-			MariaDBPool *database_pool = &mariadb_databases[database_id];
+			MariaDBPool *database_pool = &extension_databases[database_id];
 			database_pool->init(ip, port, username, password, database);
 
 			if (!mariadb_idle_cleanup_timer)
 			{
 				mariadb_idle_cleanup_timer.reset(new boost::asio::deadline_timer(io_service));
 				mariadb_idle_cleanup_timer->expires_at(mariadb_idle_cleanup_timer->expires_at() + boost::posix_time::seconds(600));
-				mariadb_idle_cleanup_timer->async_wait(boost::bind(&Ext::idleCleanup, this, _1));
+				mariadb_idle_cleanup_timer->async_wait(boost::bind(&Extension::idleCleanup, this, _1));
 			}
 			std::strcpy(output, "[1]");
 		}
 		catch (boost::property_tree::ptree_bad_path &e)
 		{
 			std::strcpy(output, "[0,\"Database Config Error\"]");
-			mariadb_databases.erase(database_id);
+			extension_databases.erase(database_id);
 			#ifdef DEBUG_TESTING
 				console->info("extDB3: Config Error: {0}: {1}", database_conf, e.what());
 			#endif
@@ -421,7 +421,7 @@ void Ext::connectDatabase(char *output, const std::string &database_conf, const 
 		catch (MariaDBConnectorException &e)
 		{
 			std::strcpy(output, "[0,\"Database Connection Error\"]");
-			mariadb_databases.erase(database_id);
+			extension_databases.erase(database_id);
 			#ifdef DEBUG_TESTING
 				console->info("extDB3: MariaDBConnectorException: {0}: {1}", database_conf, e.what());
 			#endif
@@ -431,7 +431,7 @@ void Ext::connectDatabase(char *output, const std::string &database_conf, const 
 }
 
 
-void Ext::addProtocol(char *output, const std::string &database_id, const std::string &protocol, const std::string &protocol_name, const std::string &init_data)
+void Extension::addProtocol(char *output, const std::string &database_id, const std::string &protocol, const std::string &protocol_name, const std::string &init_data)
 {
 	std::lock_guard<std::mutex> lock(mutex_vec_protocols);
 	auto foo = (std::find_if(vec_protocols.begin(), vec_protocols.end(), [=](const protocol_struct& elem) { return protocol_name == elem.name; }));
@@ -487,7 +487,7 @@ void Ext::addProtocol(char *output, const std::string &database_id, const std::s
 }
 
 
-void Ext::getSinglePartResult_mutexlock(char *output, const int &output_size, const unsigned long &unique_id)
+void Extension::getSinglePartResult_mutexlock(char *output, const int &output_size, const unsigned long &unique_id)
 // Gets Result String from unordered map array -- Result Formt == Single-Message
 //   If <=, then sends output to arma, and removes entry from unordered map array
 //   If >, sends [5] to indicate MultiPartResult
@@ -518,7 +518,7 @@ void Ext::getSinglePartResult_mutexlock(char *output, const int &output_size, co
 }
 
 
-void Ext::getMultiPartResult_mutexlock(char *output, const int &output_size, const unsigned long &unique_id)
+void Extension::getMultiPartResult_mutexlock(char *output, const int &output_size, const unsigned long &unique_id)
 // Gets Result String from unordered map array  -- Result Format = Multi-Message
 //   If length of String = 0, sends arma "", and removes entry from unordered map array
 //   If <=, then sends output to arma
@@ -556,7 +556,7 @@ void Ext::getMultiPartResult_mutexlock(char *output, const int &output_size, con
 }
 
 
-const unsigned long Ext::saveResult_mutexlock(const resultData &result_data)
+const unsigned long Extension::saveResult_mutexlock(const resultData &result_data)
 // Stores Result String and returns Unique ID, used by SYNC Calls where message > outputsize
 {
 	std::lock_guard<std::mutex> lock(mutex_results);
@@ -567,7 +567,7 @@ const unsigned long Ext::saveResult_mutexlock(const resultData &result_data)
 }
 
 
-void Ext::saveResult_mutexlock(const unsigned long &unique_id, const resultData &result_data)
+void Extension::saveResult_mutexlock(const unsigned long &unique_id, const resultData &result_data)
 // Stores Result String for Unique ID
 {
 	std::lock_guard<std::mutex> lock(mutex_results);
@@ -576,7 +576,7 @@ void Ext::saveResult_mutexlock(const unsigned long &unique_id, const resultData 
 }
 
 
-void Ext::saveResult_mutexlock(std::vector<unsigned long> &unique_ids, const resultData &result_data)
+void Extension::saveResult_mutexlock(std::vector<unsigned long> &unique_ids, const resultData &result_data)
 // Stores Result for multiple Unique IDs (used by Rcon Backend)
 {
 	std::lock_guard<std::mutex> lock(mutex_results);
@@ -588,7 +588,7 @@ void Ext::saveResult_mutexlock(std::vector<unsigned long> &unique_ids, const res
 }
 
 
-void Ext::syncCallProtocol(char *output, const int &output_size, std::string &input_str)
+void Extension::syncCallProtocol(char *output, const int &output_size, std::string &input_str)
 // Sync callPlugin
 {
 	const std::string::size_type found = input_str.find(":",2);
@@ -626,7 +626,7 @@ void Ext::syncCallProtocol(char *output, const int &output_size, std::string &in
 }
 
 
-void Ext::onewayCallProtocol(std::string &input_str)
+void Extension::onewayCallProtocol(std::string &input_str)
 // ASync callProtocol
 {
 	const std::string::size_type found = input_str.find(":",2);
@@ -647,7 +647,7 @@ void Ext::onewayCallProtocol(std::string &input_str)
 }
 
 
-void Ext::asyncCallProtocol(const int &output_size, const std::string &protocol_name, const std::string &data, const unsigned long unique_id)
+void Extension::asyncCallProtocol(const int &output_size, const std::string &protocol_name, const std::string &data, const unsigned long unique_id)
 // ASync + Save callProtocol
 // We check if Protocol exists here, since its a thread (less time spent blocking arma) and it shouldnt happen anyways
 {
@@ -661,7 +661,7 @@ void Ext::asyncCallProtocol(const int &output_size, const std::string &protocol_
 }
 
 
-void Ext::getUPTime(std::string &token, std::string &result)
+void Extension::getUPTime(std::string &token, std::string &result)
 {
 	uptime_current = std::chrono::steady_clock::now();
 	auto uptime_diff = uptime_current - uptime_start;
@@ -686,7 +686,7 @@ void Ext::getUPTime(std::string &token, std::string &result)
 }
 
 
-void Ext::getUPTime2(std::string &token, std::string &result)
+void Extension::getUPTime2(std::string &token, std::string &result)
 {
 	uptime_current = std::chrono::steady_clock::now();
 	auto uptime_diff = uptime_current - uptime_start;
@@ -711,7 +711,7 @@ void Ext::getUPTime2(std::string &token, std::string &result)
 }
 
 
-void Ext::getDateAdd(std::string &token, std::string &token2, std::string &result)
+void Extension::getDateAdd(std::string &token, std::string &token2, std::string &result)
 {
 	try
 	{
@@ -796,7 +796,7 @@ void Ext::getDateAdd(std::string &token, std::string &token2, std::string &resul
 }
 
 
-void Ext::getLocalTime(std::string &result)
+void Extension::getLocalTime(std::string &result)
 {
 	ptime = boost::posix_time::second_clock::local_time();
 	std::stringstream stream;
@@ -808,7 +808,7 @@ void Ext::getLocalTime(std::string &result)
 }
 
 
-void Ext::getLocalTime(std::string &input_str, std::string &result)
+void Extension::getLocalTime(std::string &input_str, std::string &result)
 {
 	try
 	{
@@ -865,7 +865,7 @@ void Ext::getLocalTime(std::string &input_str, std::string &result)
 }
 
 
-void Ext::getUTCTime(std::string &result)
+void Extension::getUTCTime(std::string &result)
 {
 	try
 	{
@@ -885,7 +885,7 @@ void Ext::getUTCTime(std::string &result)
 }
 
 
-void Ext::getUTCTime(std::string &input_str, std::string &result)
+void Extension::getUTCTime(std::string &input_str, std::string &result)
 {
 	try
 	{
@@ -942,7 +942,7 @@ void Ext::getUTCTime(std::string &input_str, std::string &result)
 }
 
 
-void Ext::callExtension(char *output, const int &output_size, const char *function)
+void Extension::callExtension(char *output, const int &output_size, const char *function)
 {
 	try
 	{
@@ -965,7 +965,7 @@ void Ext::callExtension(char *output, const int &output_size, const char *functi
 			{
 				case '1': //ASYNC
 				{
-					io_service.post(boost::bind(&Ext::onewayCallProtocol, this, std::move(input_str)));
+					io_service.post(boost::bind(&Extension::onewayCallProtocol, this, std::move(input_str)));
 					break;
 				}
 				case '2': //ASYNC + SAVE
@@ -988,7 +988,7 @@ void Ext::callExtension(char *output, const int &output_size, const char *functi
 								unique_id = unique_id_counter++;
 								stored_results[unique_id].wait = true;
 							}
-							io_service.post(boost::bind(&Ext::asyncCallProtocol, this, output_size, std::move(protocol_name), input_str.substr(found+1), std::move(unique_id)));
+							io_service.post(boost::bind(&Extension::asyncCallProtocol, this, output_size, std::move(protocol_name), input_str.substr(found+1), std::move(unique_id)));
 							std::strcpy(output, ("[2,\"" + std::to_string(unique_id) + "\"]").c_str());
 						}	else {
 							std::strcpy(output, "[0,\"Error Unknown Protocol\"]");

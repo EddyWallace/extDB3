@@ -15,7 +15,7 @@ bool SQL::init(AbstractExt *extension, const std::string &database_id, const std
 {
 	extension_ptr = extension;
 
-	if (extension_ptr->mariadb_databases.count(database_id) == 0)
+	if (extension_ptr->extension_databases.count(database_id) == 0)
 	{
 		#ifdef DEBUG_TESTING
 			extension_ptr->console->warn("extDB3: SQL: No Database Connection: {0}", database_id);
@@ -23,7 +23,7 @@ bool SQL::init(AbstractExt *extension, const std::string &database_id, const std
 		extension_ptr->logger->warn("extDB3: SQL: No Database Connection: {0}", database_id);
 		return false;
 	}
-	database_pool = &extension->mariadb_databases[database_id];
+	database_pool = &extension->extension_databases[database_id];
 
 	std::vector<std::string> tokens;
 	boost::split(tokens, options_str, boost::is_any_of("-"));

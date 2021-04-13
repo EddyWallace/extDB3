@@ -10,12 +10,12 @@
 
 #include <mariadb/mysql.h>
 
-#include "abstract.h"
 #include "binder.h"
 #include "connector.h"
 
+#include "../db/abstract_statement.h"
 
-class MariaDBStatement
+class MariaDBStatement : public db::AbstractStatement
 {
 public:
 	MariaDBStatement();
@@ -31,13 +31,13 @@ public:
 		MYSQL_TIME time_buffer;
 	};
 
-	void init(MariaDBConnector &connector);
-	void create();
-	void prepare(std::string & sql_query);
-	unsigned long getParamsCount();
-	void bindParams(std::vector<mysql_bind_param> &params);
-	void execute(std::vector<sql_option> &output_options, std::string &strip_chars, int &strip_chars_mode, std::string &insertID, std::vector<std::vector<std::string>> &result_vec);
-	bool errorCheck();
+	void init(db::AbstractConnector &connector) override;
+	void create() override;
+	void prepare(std::string & sql_query) override;
+	unsigned long getParamsCount() override;
+	void bindParams(std::vector<db::SQL_BIND_PARAMS> &params) override;
+	void execute(std::vector<db::SQL_OPTION> &output_options, std::string &strip_chars, int &strip_chars_mode, std::string &insertID, std::vector<std::vector<std::string>> &result_vec) override;
+	bool errorCheck() override;
 
 private:
 	bool prepared = false;

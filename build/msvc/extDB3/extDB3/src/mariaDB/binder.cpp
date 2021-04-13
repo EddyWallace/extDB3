@@ -6,9 +6,9 @@
 #include "binder.h"
 
 
-MariaDBBinder::MariaDBBinder(MYSQL *mysql_ptr, std::size_t size) : mysql_ptr(mysql_ptr), size(size)
+MariaDBBinder::MariaDBBinder(MYSQL* mysql_ptr, std::size_t size) : mysql_ptr(mysql_ptr), size(size)
 {
-	mysql_binds = new MYSQL_BIND [size];
+	mysql_binds = new MYSQL_BIND[size];
 }
 
 
@@ -25,14 +25,14 @@ void MariaDBBinder::clear()
 }
 
 
-void MariaDBBinder::binder(std::size_t &pos, enum_field_types type, const void* buffer, int length)
+void MariaDBBinder::binder(std::size_t& pos, int type, const void* buffer, int length)
 {
-	MYSQL_BIND mysql_bind = {0};
+	MYSQL_BIND mysql_bind = { 0 };
 
-	mysql_bind.buffer_type   = type;
-	mysql_bind.buffer  = const_cast<void*>(buffer);
+	mysql_bind.buffer_type = static_cast<enum_field_types>(type);
+	mysql_bind.buffer = const_cast<void*>(buffer);
 	mysql_bind.buffer_length = length;
-	mysql_bind.is_unsigned   = false;
+	mysql_bind.is_unsigned = false;
 
 	mysql_binds[pos] = (std::move(mysql_bind));
 }

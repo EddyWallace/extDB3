@@ -17,25 +17,18 @@
 #include "query.h"
 #include "statement.h"
 
+#include "../db/abstract_pool.h"
 
-class MariaDBPool
+class MariaDBPool : public db::AbstractPool
 {
 public:
 	MariaDBPool();
 	~MariaDBPool();
 
-	struct mariadb_session_struct
-	{
-		boost::posix_time::ptime last_used;
-		MariaDBConnector connector;
-		MariaDBQuery     query;
-		std::unordered_map<std::string, std::vector<MariaDBStatement> > statements;
-	};
-
-	void init(std::string &host, unsigned int &port, std::string &user, std::string &password, std::string &db);
-	std::unique_ptr<mariadb_session_struct> get();
-	void putBack(std::unique_ptr<mariadb_session_struct> mariadb_session);
-	void idleCleanup();
+	void init(std::string& host, unsigned int& port, std::string& user, std::string& password, std::string& db) override;
+	std::unique_ptr<db::AbstractPool::SQL_SESSION> get() override;
+	void putBack(std::unique_ptr<db::AbstractPool::SQL_SESSION> mariadb_session) override;
+	void idleCleanup() override;
 
 private:
 	struct login_data_struct
@@ -48,6 +41,6 @@ private:
 	};
 	login_data_struct login_data;
 
-	std::list<std::unique_ptr<mariadb_session_struct>> mariadb_session_pool;
+	std::list<std::unique_ptr<db::AbstractPool::SQL_SESSION>> mariadb_session_pool;
 	std::mutex mariadb_session_pool_mutex;
 };
